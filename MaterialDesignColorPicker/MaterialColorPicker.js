@@ -171,6 +171,7 @@ picker=(function(){
             picker.set_element_color(picker.portal);
             if(picker.callback)(picker.call_callback(picker.callback))(color, lightness);
             if(picker.target) picker.set_element_color(picker.target);
+            if(picker.input) picker.input.value=color;
             picker.write_status();
          }
       },
