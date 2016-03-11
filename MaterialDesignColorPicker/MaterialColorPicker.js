@@ -11,19 +11,22 @@ picker=(function(){
       target:false,
       input:false,
       init_color:false,
+      body:false,
 //Initialisation
       init:function(){
+      picker.body=document.body;
       var all_pickers = document.getElementsByClassName('mcpicker');
       for (var i = 0; i < all_pickers.length; i++) {
          picker.init_one(all_pickers[i]);
       };
+      
       },
       create_picker:function(){
          picker.picker = document.createElement('div');
          picker.picker.classList.add('bg-mod');
          picker.picker.id = 'mcpicker';
          picker.picker.style.opacity = '0';
-         document.body.appendChild(picker.picker);
+         picker.body.appendChild(picker.picker);
          picker.picker.innerHTML=picker.template();
          window.addEventListener('resize', picker.hide, false);
       },
@@ -109,12 +112,14 @@ picker=(function(){
             result.value='#'+picker.color_arr.color;
       },
       move_to_portal: function() {
-         var x = picker.portal.offsetLeft+50, 
-             y = picker.portal.offsetTop,
-             w = document.body.clientWidth,
-             h = document.body.clientHeight;
+         var xy_arr=picker.findPos(picker.portal);
+         var x = xy_arr[0]+50, 
+             y = xy_arr[1],
+             w = picker.body.clientWidth,
+             h = picker.body.clientHeight;
              x = (x+210>=w)?(w-210):((x<0)?10:x);
-             y = (y+400>=h)?(h-210):((y<0)?10:y);
+             y = (y+300>=h)?(h-310):y;
+             y = (y<0)?10:y;
          picker.picker.style.top = y+'px';
          picker.picker.style.left = x+'px';
       },
@@ -128,6 +133,21 @@ picker=(function(){
          picker.picker.style.visibility = 'visible';
          picker.picker.style.opacity = '1';
          picker.picker.style.maxHeight = '400px';
+      },
+      findPos: function(obj){
+         var posX = obj.offsetLeft;
+         var posY = obj.offsetTop;
+         while(obj.offsetParent){
+            if(obj!=picker.body){
+               posX=posX+obj.offsetParent.offsetLeft;
+               posY=posY+obj.offsetParent.offsetTop;
+               obj=obj.offsetParent;
+            }
+            else break;
+
+         }
+            var posArray=[posX,posY]
+            return posArray;         
       },
       hide_animation: function(event) {
          picker.picker.style.left=(picker.portal.offsetLeft-50)+'px';
