@@ -94,15 +94,9 @@
         }
     }    
     svg{
-        padding-top: 13px;
-        padding-right: 13px;
-        float: right;
-        cursor: pointer;
-        &:hover{
-            opacity: 0.6;
-            cursor: pointer;
-        
-        }
+    display:inline-block;
+    vertical-align: middle;
+    text-align:center;
     }   
   
     #mcpicker_header{
