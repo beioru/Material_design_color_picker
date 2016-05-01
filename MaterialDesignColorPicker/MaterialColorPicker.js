@@ -3,6 +3,7 @@ picker=(function(){
   return { 
       picker:false,
       portal:false,
+      position_fixed:false,
       selected_group:0,
       selected_color:0,
       is_shown:false,
@@ -14,11 +15,11 @@ picker=(function(){
       body:false,
 //Initialisation
       init:function(){
-      picker.body=document.body;
-      var all_pickers = document.getElementsByClassName('mcpicker');
-      for (var i = 0; i < all_pickers.length; i++) {
-         picker.init_one(all_pickers[i]);
-      };
+         picker.body=document.body;
+         var all_pickers = document.getElementsByClassName('mcpicker');
+         for (var i = 0; i < all_pickers.length; i++) {
+            picker.init_one(all_pickers[i]);
+         };
       
       },
       create_picker:function(){
@@ -36,21 +37,35 @@ picker=(function(){
             if(color){
                picker.find_color(color);
                picker.set_element_color(portal);
-            }
+            }else{
             portal.innerHTML=(color)?color:'no color';
             portal.classList.add('dark');
-
-            if(!picker.picker) picker.create_picker();
+            }
       },
-      new:function(id, color, callback, active, target, input){
+      new:function(id, color, callback, active, target, input, position_fixed){
          var new_mcpicker=document.getElementById(id);
          new_mcpicker.innerHTML='<div class="mcpicker" '+
          (color?' data-color="'+color+'"  ':'')+
          (callback?' data-callback="'+callback+'"':'')+
          (target?' data-target="'+target+'"':'')+
          (active?' data-active="'+active+'"':'')+
+         (position_fixed?' data-position="'+position_fixed+'"':'')+
          ' onclick="picker.show();"></div>';
          picker.init_one(new_mcpicker.firstChild);
+      },
+      new_html:function(id, color, callback, active, target, input, position_fixed){
+         if(color) picker.find_color(color,true);
+         var str='<div id="'+id+'"><div class="mcpicker '+((picker.color_arr.mod=='dark')?'dark':'light')+'" '+
+         (color?' data-color="'+color+'"  ':'')+
+         (callback?' data-callback="'+callback+'"':'')+
+         (target?' data-target="'+target+'"':'')+
+         (active?' data-active="'+active+'"':'')+
+         (position_fixed?' data-position="'+position_fixed+'"':'')+
+         ' onclick="picker.show();" '+    
+         'style="'+((picker.color_arr.color)?'background-color:#'+picker.color_arr.color+';':'')+'">'+((picker.color_arr.color)?'#'+picker.color_arr.color:'no color')+'</div></div>';
+
+         return str;
+
       },
       set_element_color:function(element){
          element.style.backgroundColor='#'+picker.color_arr.color;
@@ -79,22 +94,42 @@ picker=(function(){
          picker.target=picker.get_data_ret_obj('target');
          picker.input=picker.get_data_ret_obj('input');
          picker.callback=picker.portal.getAttribute('data-callback');
+         picker.position_fixed=(picker.portal.getAttribute('data-position_fixed')=='true')?true:false;
          picker.init_color=picker.portal.getAttribute('data-color')||0;
          picker.init_active=picker.portal.getAttribute('data-active')=='true';
       },
+      hasClass:function(ele, cls) {
+         return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
+      },
+
+      addClass:function (ele, cls) {
+         if (!picker.hasClass(ele,cls)) ele.className += " "+cls;
+      },
+
+      removeClass:function (ele, cls) {
+         console.log(ele.className);
+         if (picker.hasClass(ele,cls)) {
+            var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
+            ele.className=ele.className.replace(reg,' ');
+         }
+      },
+
       clear_active_class:function(){
          if(picker.picker.classList.contains('subcolor'))
             picker.picker.classList.remove('subcolor');
          if(picker.selected_group&&picker.selected_group!=0){
-            document.getElementById('color_group_'+picker.selected_group).classList.remove('active_group');
-            document.getElementById('color_'+picker.selected_group+'_'+picker.selected_color).classList.remove('active_color');
-         }
+            console.log(document.getElementById('color_group_'+picker.selected_group));
+            picker.removeClass(document.getElementById('color_group_'+picker.selected_group),'active_group');
+            console.log(document.getElementById('color_group_'+picker.selected_group));
+            picker.removeClass(document.getElementById('color_'+picker.selected_group+'_'+picker.selected_color),'active_color');
+
+      }
       },
       setup_active_class:function(){
          if(!picker.picker.classList.contains('subcolor'))
                picker.picker.classList.add('subcolor');
-            document.getElementById('color_group_'+picker.selected_group).classList.add('active_group');
-            document.getElementById('color_'+picker.selected_group+'_'+picker.selected_color).classList.add('active_color');
+            picker.addClass(document.getElementById('color_group_'+picker.selected_group),'active_group');
+            picker.addClass(document.getElementById('color_'+picker.selected_group+'_'+picker.selected_color),'active_color');
       },
       set:function(color){
          picker.clear_active_class();
@@ -122,6 +157,8 @@ picker=(function(){
              y = (y<0)?10:y;
          picker.picker.style.top = y+'px';
          picker.picker.style.left = x+'px';
+         picker.picker.style.position = picker.position_fixed?'fixed':'absolute';
+
       },
       toggleactive: function() {
          picker.is_active=picker.is_active?false:true;
@@ -156,6 +193,7 @@ picker=(function(){
          picker.picker.style.maxHeight = '0px';
       },
       show: function(event) {
+         if(!picker.picker) picker.create_picker();
          picker.is_shown=true;
          var e = event || window.event; picker.portal= e.target || e.srcElement; 
          picker.read_status();
@@ -172,6 +210,7 @@ picker=(function(){
       },
       click: function(color){
          picker.set(color);
+         picker.apply_result();
       },
       call_callback: function(callback_name){
          if(callback_name){ 
@@ -195,24 +234,28 @@ picker=(function(){
             picker.write_status();
          }
       },
-      find_color: function(color) {
+      find_color: function(color, no_update) {
          if(color){
             if(color.charAt(0)=='#') color=color.substring(1,7);
             color=color.toLowerCase();
             for (var i = 1; i < picker.color.length; i++) {
                for (var j = 0; j < picker.color[i].length; j++) {
                   if(picker.color[i][j].color==color){
+                     picker.color_arr=picker.color[i][j];
+                     if(no_update) return true;
                      picker.selected_group=i;
                      picker.selected_color=j;
-                     picker.color_arr=picker.color[i][j];
+                     
                      return true;
                   }
                }
             }
          }
+         picker.color_arr=picker.color[0][0];
+         if(no_update) return true;
          picker.selected_group=0;
          picker.selected_color=0;
-         picker.color_arr=picker.color[0][0];
+         
          return false;
       },
       template: function() {
@@ -231,7 +274,8 @@ picker=(function(){
                    active_color=(picker.color[i][j].weight.charAt(0)=='A')?' active-color':' bg-color';
                    str+='<div  onclick="picker.click(\'#'+picker.color[i][j].color+'\');" id="color_'+i+'_'+j+'" class="color'+mod+active_color+main_color+'" style="background-color: #'+picker.color[i][j].color+';"><span class="shade">'+picker.color[i][j].weight+'</span></div>';
                  };
-              str+='<div onclick="picker.hide(true)" class="color dark" >'+save+'</div></div>';
+              //str+='<div onclick="picker.hide(true)" class="color dark" >'+save+'</div>'+
+              str+='</div>';
             };
          return str+'';
       },
