@@ -282,7 +282,7 @@ picker=(function(){
          var  str, sw, back, main_color, active_color;
          sw='A';
          back='<svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
-         str='<div id="mcpicker_header"><div id="arrow"></div><div id="mcpicker_switch" onclick="picker.toggleactive();">'+sw+'</div><input type="text" id="mcpicker_result" onfocus="this.select();"><div  onclick="picker.click(0);" class="mcpicker_subcolor">'+back+'</div></div>';
+         str='<div id="mcpicker_header"><div id="arrow"></div><div  onclick="picker.click(0);" class="mcpicker_subcolor">'+back+'</div><input type="text" id="mcpicker_result" onfocus="this.select();"><div id="mcpicker_switch" onclick="picker.toggleactive();">'+sw+'</div></div>';
             for (var i = 1; i < picker.color.length; i++) {
               str+='<div class="color-group" id="color_group_'+i+'">';
                  for (var j = 0; j < picker.color[i].length; j++) {
