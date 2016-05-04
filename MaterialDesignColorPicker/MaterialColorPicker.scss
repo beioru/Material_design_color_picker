@@ -72,8 +72,11 @@
         left: -8px;
     }
     transition-delay:0s;
-    .mcpicker_subcolor{
-        display:none;
+    .mcpicker_subcolor{        display:block;
+            width:50px;
+            height:50px;
+            float:left;
+        opacity:0;
     }
     &.subcolor{
         .color-group{
@@ -90,6 +93,10 @@
         }
     .mcpicker_subcolor{
         display:block;
+            width:50px;
+            height:50px;
+            float:left;
+            opacity:1;
     }
 
     }        
@@ -122,8 +129,9 @@
         padding-right: 13px;
         float: right;
         cursor: pointer;
+        opacity: 0.5;
         &:hover{
-            opacity: 0.6;
+            opacity: 1;
             cursor: pointer;
         
         }
